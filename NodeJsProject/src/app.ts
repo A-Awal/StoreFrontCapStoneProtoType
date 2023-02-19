@@ -1,13 +1,15 @@
 import express, { Application, Request, Response } from "express";
 
+import dotenv from "dotenv";
+
+dotenv.config();
 const app: Application = express();
 
-const port: number = 3000;
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 
-app.get("/hello", (req: Request, res: Response) => {
-  res.send("Hello typescript project setup");
-});
+const port: number = Number(process.env.PORT);
 
-app.listen(port, function () {
-  console.log(`App is listening on port ${port} !`);
+app.listen(port, function (): void {
+  console.log("App started on port 3000...");
 });
