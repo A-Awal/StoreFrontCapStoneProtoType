@@ -2,15 +2,15 @@ import { Entity, BaseEntity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
 export class Person extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({unique:true, nullable: false })
+  @Column({type: 'varchar', unique:true, nullable: true })
   email: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   password: string;
 
-  @Column({unique: true,})
+  @Column({nullable : true})
   phoneNumber: number;
 }
