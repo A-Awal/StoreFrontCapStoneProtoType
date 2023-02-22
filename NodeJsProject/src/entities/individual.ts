@@ -8,18 +8,18 @@ enum IndividualType {
   business = 'Merchant'
 }
 
-@Entity("users")
+@Entity("user")
 export class Individual extends Person {
   @Column({ nullable: true })
-  firstname: string;
+  first_name: string;
 
   @Column({ nullable: true })
-  lastname: string;
+  last_name: string;
 
   @Column({ nullable: true })
-  indivdual: IndividualType;
+  role: IndividualType;
 
-  @OneToOne(() => Order, (order) => order.individual)
+  @OneToOne(() => Order, (order) => order.individual,{nullable: true})
   order:Order;
 
   @OneToMany(() => Business, (business) => business.individual, {

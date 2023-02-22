@@ -12,5 +12,5 @@ export class Person extends BaseEntity {
   password: string;
 
   @Column({nullable : true})
-  phoneNumber: number;
+  phone_number: string;
 }
