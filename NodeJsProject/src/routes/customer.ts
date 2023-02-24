@@ -1,39 +1,42 @@
 import express, { Request, Response, NextFunction } from "express";
+import passport from "passport";
 import { AppDataSource } from "../config/db";
 import { Individual } from "../entities/individual";
+import {authenticateWithJwt} from '../middlewares/authenticateWithJwt'
+import jwt from "jsonwebtoken"
+import { userLogin } from "../controllers/user.login";
 
 export const customerRouter = express.Router();
 
 customerRouter.post(
-  "/login",
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { first_name, last_name, email, phone_number, password, role } =
-      req.body;
-    const individual = new Individual();
-    individual.password = password;
-    individual.email = email;
-    individual.first_name = first_name;
-    individual.last_name = last_name;
-    individual.phone_number = phone_number;
-    individual.role = role;
-    
-
-
-
-
-    
-    await AppDataSource.manager.save(individual);
-
-    const users = await AppDataSource.manager.find(Individual);
-
-    res.json(users);
-  }
+  "/login", userLogin
 );
 
+customerRouter.get("/l", (req, res)=>{
+  res.json({msg :"Alright"})
+});
 
-customerRouter.get(
-  "/",
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.json('Hello World')
-  }
-  )
+
+
+
+// customerRouter.get(
+//   "/customer", authenticateWithJwt,
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const customer = Individual.findOne({where:{email : req.user.email}})
+//     res.json()
+//   }
+//   )
+
+//   customerRouter.post(
+//     "/logout",
+//     async(req: Request, res: Response, next: NextFunction) => {
+//       // Clear the JWT token from the client-side cookie
+//       res.clearCookie("token");
+
+//       // End the user's Passport session
+//       req.logout()
+
+//       // Redirect the user to the login page or any other desired page
+//       res.redirect("/login");
+//     }
+//   );

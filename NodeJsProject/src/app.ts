@@ -3,36 +3,35 @@ import express, { Application, Request, Response } from "express";
 import { initializeDataBase } from "./config/db";
 import compression from "compression";
 import cors, { CorsOptions } from "cors";
-import { ApolloServer } from "apollo-server-express";
-import {ApolloServerPluginLandingPageGraphQLPlayground} from 'apollo-server-core'
-
+import session from "express-session";
 import dotenv from "dotenv";
-import { router } from "./route";
-import { buildSchema } from "type-graphql";
-import { UserResolver } from "./resolvers/users";
+import { router } from "./routes";
+import passport from "./config/passport.config";
+
+
 
 dotenv.config();
 
-const main = async () => {
-  const apolloServer = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [UserResolver],
-      validate: false
-    }),
-    plugins : [ApolloServerPluginLandingPageGraphQLPlayground()]
-  })
-
-  await apolloServer.start()
   const app: Application = express();
   const port: number = Number(process.env.PORT);
 
-  apolloServer.applyMiddleware({app, })
-  app.use(cors());
+
+ 
   app.use(compression());
   app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.urlencoded({ extended: true })); 
+  app.use(cors());
+  app.use(
+    session({
+      secret: "your_secret_key",
+      resave: false,
+      saveUninitialized: false,
+    })
+  );
+
   
-  
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.use(router);
   
   app.listen(port, function (): void {
@@ -40,8 +39,7 @@ const main = async () => {
     console.log(`App started on port: ${port}  ...`);
   });
   
-}
 
 
 
-main().catch((err)=>{ console.log(err)})
+
