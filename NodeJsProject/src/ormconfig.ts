@@ -8,15 +8,15 @@ import { Order } from "./entities/order";
 
 dotenv.config();
 
-console.log(__dirname + "/entities");
+
 const config: DataSourceOptions = {
   type: "postgres",
   host: "localhost",
   port: Number(process.env.DATABASE_PORT),
-  username: "postgres",
-  password: "pielly16",
-  database: "postgres",
-  entities: [Individual, Business, Product, Order,],
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [Individual, Business, Product, Order],
   migrations: [__dirname + "/migrations/*{.ts,.js}"],
   synchronize: true,
   migrationsRun: false,
