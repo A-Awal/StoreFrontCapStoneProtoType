@@ -8,9 +8,9 @@ import  bcrypt  from "bcrypt";
 
 
 
-enum IndividualType {
+export enum IndividualType {
   customer = "customer",
-  merchant = "merchant"
+  business = "business"
 }
 
 
@@ -22,7 +22,10 @@ export class Individual extends Person {
   @Column({ nullable: true })
   last_name: string;
 
-  @Column({ nullable: true })
+  @Column({nullable: true})
+  business_name : string;
+
+  @Column()
   role: IndividualType;
 
   @OneToOne(() => Order, (order) => order.individual, { nullable: true })
@@ -35,7 +38,7 @@ export class Individual extends Person {
 
   public  generateAuthToken(): string {
     const token = jwt.sign({ id: this.id }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "7d",
+      expiresIn: "4",
     });
     return token;
   }
@@ -45,7 +48,7 @@ export class Individual extends Person {
     return hash;
   }
 
-  public async comparePassword(password): Promise<boolean> { 
+  public async comparePassword(password): Promise<boolean> {
     return await bcrypt.compare(password, this.password);;
   }
 }
