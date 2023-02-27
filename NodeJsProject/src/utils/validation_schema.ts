@@ -16,6 +16,8 @@ const loginSchema = Joi.object({
  
 });
 
+
+
 //Customer registration validator
 const customerRegValidator = (schema) => (payload) =>
   schema.validate(payload, { abortEarly: false });

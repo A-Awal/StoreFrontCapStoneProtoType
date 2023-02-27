@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
-import { Individual } from "../entities/individual";
-import { validateLogin } from "../helper/validation_schema";
+import { User } from "../entities/user";
+import { validateLogin } from "../utils/validation_schema";
 
 export const userLogin = async (
   req: Request,
@@ -20,7 +20,7 @@ export const userLogin = async (
   
 
   try {
-    const user = await Individual.findOne({ where: { email: value.email } });
+    const user = await User.findOne({ where: { email: value.email } });
 
     if (!user) {
       return res.status(401).send({ message: "Invalid email or password" });

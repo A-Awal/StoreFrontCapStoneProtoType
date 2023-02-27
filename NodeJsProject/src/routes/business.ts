@@ -6,3 +6,8 @@ export const businessRouter = express.Router();
 
 
 businessRouter.post("/register", businessRegistration);
+
+businessRouter.get(
+  "/business/verify/:id/:token`",
+  businessRegistration
+);

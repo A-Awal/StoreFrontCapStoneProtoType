@@ -1,7 +1,7 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import passport from "passport";
 import { Request } from "express";
-import { Individual } from "../entities/individual";
+import { Individual } from "../entities/user";
 
 
 

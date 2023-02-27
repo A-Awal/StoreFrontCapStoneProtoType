@@ -1,7 +1,11 @@
 import { NextFunction, Response, Request } from "express";
-import { Individual, IndividualType } from "../entities/individual";
+import { User, UserType } from "../entities/user";
 import bcrypt from "bcrypt";
-import { validateBusinessReg } from "../helper/validation_schema";
+import { validateBusinessReg } from "../utils/validation_schema";
+import { sendMail, subject } from "../utils/email";
+import dotenv from "dotenv";
+import { Token } from "../entities/token";
+dotenv.config();
 
 export const businessRegistration = async (
   req: Request,
@@ -26,7 +30,7 @@ export const businessRegistration = async (
   }
 
   try {
-    let user = await Individual.findOne({ where: { email: value.email } });
+    let user = await User.findOne({ where: { email: value.email } });
 
     if (user) {
       return res.status(401).send({ message: "Email already exist, Log in" });
@@ -42,20 +46,53 @@ export const businessRegistration = async (
     const salt = await bcrypt.genSalt(Number(process.env.Salt));
 
     const hashed_password = await bcrypt.hash(password, salt);
-    user = Individual.create({
+    user = User.create({
       business_name,
       email: value.email,
       password: hashed_password,
-      role: IndividualType.business,
+      role: UserType.business,
       phone_number,
     });
     await user.save();
+    const token = await user.generateAuthToken();
+    const Usertoken = Token.create({
+      id: user.id,
+      token,
+    });
+    await Usertoken.save();
 
-    return res
-      .status(200)
-      .send({ data: user, message: "Logged in successfully" });
+    const message = `${process.env.BASE_URL}/business/verify/${user.id}/${token}`;
+
+    try {
+      await sendMail(user.email, subject, message);
+    } catch (error) {
+      return res.status(500).send({ message: error });
+    }
+    return res.status(200).send({
+      message: `Activate your account with the link sent to ${user.email}`,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
+  }
+};
+
+export const verifyAccount = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOne({ where: { id: Number(req.params.id) } });
+    if (!user) {
+      return res.status(400).send("Invalid link");
+    }
+    const token = await Token.findOne({
+      where: { id: user.id, token: req.params.token },
+    });
+    if (!token) {
+      return res.status(400).send("Invalid link");
+    }
+     
+    User.update(user)
+    await Token.remove(token)
+  } catch (error) {
+    res.status(400).send("An error occured");
   }
 };

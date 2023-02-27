@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import dotenv  from "dotenv";
-import { Individual } from "../entities/individual";
+import { Individual } from "../entities/user";
 dotenv.config
 
 // middleware to authenticate with JWT
