@@ -1,11 +1,17 @@
-import { Entity, Column, OneToMany, OneToOne, CreateDateColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  OneToMany,
+  OneToOne,
+  CreateDateColumn,
+} from "typeorm";
 import { Person } from "./utils/credential";
 import { Business } from "./business";
 import { Order } from "./order";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import crypto from "crypto"
-import { Token } from "./token";
+import crypto from "crypto";
+
 
 export enum UserType {
   customer = "customer",
@@ -31,9 +37,6 @@ export class User extends Person {
 
   @OneToOne(() => Order, (order) => order.user, { nullable: true })
   order: Order;
-
-  @OneToOne(() => Token, (token) => token.user, { nullable: true })
-  token: Token;
 
   @OneToMany(() => Business, (business) => business.user, {
     nullable: true,

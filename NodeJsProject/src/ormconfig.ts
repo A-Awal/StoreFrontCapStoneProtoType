@@ -1,12 +1,10 @@
 import { DataSourceOptions } from "typeorm";
-
-import * as dotenv from "dotenv";
 import { User } from "./entities/user";
 import { Business } from "./entities/business";
 import { Product } from "./entities/product";
 import { Order } from "./entities/order";
 import { Token } from "./entities/token";
-
+import * as dotenv from "dotenv";
 dotenv.config();
 
 const config: DataSourceOptions = {

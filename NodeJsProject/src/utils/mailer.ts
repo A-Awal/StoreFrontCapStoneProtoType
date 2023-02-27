@@ -1,4 +1,29 @@
-<!DOCTYPE html>
+import * as nodemailer from "nodemailer";
+
+export const sendMail = async (
+  email: string,
+  subject: string,
+  message: string,
+  heading :string
+): Promise<void> => {
+  const transporter = nodemailer.createTransport({
+    host: process.env.HOST,
+    service: process.env.SERVICE,
+    port: 587,
+    secure: false, // set to true if using a secure connection (e.g. SSL/TLS)
+    auth: {
+      user: process.env.USER,
+      pass: process.env.PASS,
+    },
+  });
+
+
+  try {
+    await transporter.sendMail({
+      from: `noreply.${process.env.USER}`,
+      to: email,
+      subject: subject,
+      html: `<!DOCTYPE html>
 
 <html
   lang="en"
@@ -612,8 +637,7 @@
                                             color: #2b303a;
                                           "
                                           ><strong
-                                            >Activate your Storefront account
-                                            with the link below.</strong
+                                            >${heading}.</strong
                                           ></span
                                         >
                                       </p>
@@ -671,7 +695,7 @@
                                             color: #808389;
                                             font-size: 15px;
                                           "
-                                          >${text}</span
+                                          ><a href="${message}" >${message}</a></span
                                         >
                                       </p>
                                     </div>
@@ -813,7 +837,7 @@
                                             border-top: 4px solid #1aa19c;
                                           "
                                         >
-                                          <span> ></span>
+                                          <span> </span>
                                         </td>
                                       </tr>
                                     </table>
@@ -1123,3 +1147,11 @@
     <!-- End -->
   </body>
 </html>
+`,
+    });
+  } catch (error) {
+    throw new Error(`Error sending email to ${email}: ${error}`);
+  }
+};
+
+export const subject = "Account Activation Link";
