@@ -1,13 +1,14 @@
 import express from "express";
 import { verifyAccount } from "../controllers/auth/verify_account";
 import {
-  businessRegistration,
+  businessRegistration
 } from "../controllers/auth/business.auth";
-import { sendResetEmail, setNewPassword } from "../controllers/auth/password_reset";
+import { requestPasswordReset, setNewPassword } from "../controllers/auth/password_reset";
+import { authenticateSession } from "../middlewares/is_auth";
 
 export const businessRouter = express.Router();
 
-businessRouter.post("/register", businessRegistration);
+businessRouter.get("/signup", businessRegistration);
 
 businessRouter.get("/verify/:id/:token", verifyAccount);
 

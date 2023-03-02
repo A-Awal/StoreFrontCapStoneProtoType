@@ -938,7 +938,7 @@ export const sendMail = async (
                                             font-size: 12px;
                                           "
                                           >
-                                          The link expires in 5 hours <br>
+                                          This link expires in 60 minutes <br>
                                           Ignore the message, if you did not
                                           register an account with
                                           storefront</span

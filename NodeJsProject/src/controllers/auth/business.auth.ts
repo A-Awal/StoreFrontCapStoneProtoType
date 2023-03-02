@@ -1,11 +1,11 @@
 import { NextFunction, Response, Request } from "express";
 import { User, UserType } from "../../entities/user";
 import { validateBusinessReg } from "../../utils/validations/business";
-import { BusinessRegistrationRequestBody } from "../../types/business.types";
+import { UserRequestBody } from "../../types/user.types"; 
 import { RegistrationService } from "../../services/register.services";
 
 export const businessRegistration = async (
-  req: Request<{}, {}, BusinessRegistrationRequestBody>,
+  req: Request<{}, {}, UserRequestBody>,
   res: Response<{ message: string }>,
   next: NextFunction
 ): Promise<Response<any, Record<string, any>>> => {
@@ -41,7 +41,7 @@ export const businessRegistration = async (
       business_name,
       email : value.email,
       password,
-      confirm_password,
+   
     });
 
     businessRegistration.createToken(business);
@@ -53,3 +53,4 @@ export const businessRegistration = async (
     res.status(500).send({ message: "Internal Server Error" });
   }
 };
+

@@ -1,13 +1,14 @@
 import { NextFunction, Response, Request } from "express";
-import { User } from "../entities/user";
-import { validateLogin } from "../utils/validations/login_schema";
+import { User } from "../../entities/user";
+import { UserRequestBody } from "../../types/user.types";
+import { validateLogin } from "../../utils/validations/login_schema";
 
 export const userLogin = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<Response<any, Record<string, any>>> => {
-  const { email, password } = req.body;
+  const { email, password } : UserRequestBody = req.body;
   console.log(email, password);
 
   const { error, value } = validateLogin({ email, password });
@@ -26,13 +27,21 @@ export const userLogin = async (
     if (!user) {
       return res.status(401).send({ message: "Invalid email or password" });
     }
+
+    if (!user.activated) {
+      return res.status(401).send({ message: "Activate your account" });
+    }
+    // console.log(user)
+    
     const isValidPassword: boolean = await user.comparePassword(password);
 
     if (!isValidPassword) {
       return res.status(401).send({ message: "Invalid email or password" });
     }
 
-    return res.status(200).send({ message: "Logged in successfully" });
+    req.user = user
+    
+    return res.status(200).send({ message: "Logged in successfully"});
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }

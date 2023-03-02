@@ -5,7 +5,7 @@ import {
   validateReset,
 } from "../../utils/validations/login_schema";
 
-export const sendResetEmail = async (
+export const requestPasswordReset = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -50,7 +50,7 @@ export const setNewPassword = async (
         .send({ message: `Password and confirm password do not match` });
     }
     const setPassword = new PasswordResetService();
-    setPassword.resetPassword(token, password, Number(id));
+    await setPassword.resetPassword(token, password, Number(id));
 
     res.status(201).send({
       message: `Password reset successful`,

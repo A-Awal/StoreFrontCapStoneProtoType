@@ -1,11 +1,11 @@
 import { NextFunction, Response, Request } from "express";
-import { CustomerRegistrationRequestBody } from "../../types/customer.types";
+import { UserRequestBody } from "../../types/user.types";
 import { RegistrationService } from "../../services/register.services";
 import { validateCustomerReg } from "../../utils/validations/customer";
 import { User } from "../../entities/user";
 
 export const customerRegistration = async (
-  req: Request<{}, {}, CustomerRegistrationRequestBody>,
+  req: Request<{}, {}, Partial<UserRequestBody>>,
   res: Response,
   next: NextFunction
 ): Promise<Response<any, Record<string, any>>> => {
@@ -45,7 +45,7 @@ export const customerRegistration = async (
       last_name,
       email: value.email,
       password,
-      confirm_password,
+     
     });
      customerRegistration.createToken(customer);
 

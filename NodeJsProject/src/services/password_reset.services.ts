@@ -20,7 +20,7 @@ export class PasswordResetService {
 
       const heading = `Hi ${user.first_name},\n\n You recently requested to reset your password. Please click the link below to reset your password`;
       const subject = `Reset Your Password`
-      const message = `${process.env.BASE_URL}/api/${user.role}/resetpassword/${user.id}/${token}`;
+      const message = `${process.env.BASE_URL}/api/${user.role}/reset_password/${user.id}/${token}`;
       sendMail(user.email, subject, message, heading);
     } catch (error) {
       console.log(error);

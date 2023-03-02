@@ -1,8 +1,7 @@
 import bcrypt from "bcrypt";
 import { User, UserType } from "../entities/user";
 import { sendMail } from "../utils/mailer";
-import { BusinessRegistrationRequestBody } from "../types/business.types";
-import { CustomerRegistrationRequestBody } from "../types/customer.types";
+import { UserRequestBody } from "../types/user.types";
 import { Token } from "../entities/token";
 
 
@@ -12,14 +11,17 @@ export class RegistrationService {
     return await bcrypt.hash(password, salt);
   }
   private async sendActivationEmail(user: User, token: string): Promise<void> {
-    const heading = `Hi ${user.first_name},\n\n Activate your Storefront account with the link below `;
+
+   const heading = `<p style="font-size: 18px; text-align: left">Hi ${
+     user.first_name || user.business_name
+   },</p> <p style="font-size: 18px; text-align: center">Activate your Storefront Account with the link below...</p>.`;
     const subject = `Activate Your Storefront Account`;
     const message = `${process.env.BASE_URL}/api/${user.role}/verify/${user.id}/${token}`;
     await sendMail(user.email, subject, message, heading);
   }
 
   public async createbusiness(
-    merchant: BusinessRegistrationRequestBody,
+    merchant: Partial<UserRequestBody>,
   ): Promise<User> {
     try {
       const hashedPassword = await this.hashPassword(merchant.password);
@@ -41,7 +43,7 @@ export class RegistrationService {
   }
 
   public async createCustomer(
-    customer: CustomerRegistrationRequestBody
+    customer: Partial<UserRequestBody>
   ): Promise<User> {
     try {
       const hashedPassword = await this.hashPassword(customer.password);
