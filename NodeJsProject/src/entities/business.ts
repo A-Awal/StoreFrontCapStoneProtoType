@@ -7,7 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Individual } from "./individual";
+import { User } from "./user";
 import { Product } from "./product";
 
 enum BusinessType {
@@ -22,14 +22,14 @@ export class Business extends BaseEntity {
   id: number;
 
   @Column()
-  businessName: string;
+  business_name: string;
 
   @Column()
   businesType: BusinessType;
 
-  @ManyToOne(() => Individual, (individual) => individual.business)
-  @JoinColumn()
-  individual: Individual;
+  @ManyToOne(() => User, (user) => user.business,)
+  @JoinColumn({name: "user_id"})
+  user: User;
 
   @OneToMany(() => Product, (product) => product.business, {
     nullable: true,

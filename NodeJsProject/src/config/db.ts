@@ -1,10 +1,10 @@
 import { DataSource } from "typeorm";
 import config from "../ormconfig";
 
-export const AppDataSource = new DataSource(config);
+export const AppDataSource : DataSource = new DataSource(config);
 
-export function initializeDataBase() {
-  AppDataSource.initialize()
+export async  function initializeDatabase() {
+  await AppDataSource.initialize()
     .then(() => {
       console.log("Data Source has been initialized!");
     })
@@ -12,3 +12,5 @@ export function initializeDataBase() {
       console.error("Error during Data Source initialization", err);
     });
 }
+
+

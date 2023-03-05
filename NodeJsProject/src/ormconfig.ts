@@ -1,22 +1,20 @@
 import { DataSourceOptions } from "typeorm";
-
-import * as dotenv from "dotenv";
-import { Individual } from "./entities/individual";
+import { User } from "./entities/user";
 import { Business } from "./entities/business";
 import { Product } from "./entities/product";
 import { Order } from "./entities/order";
-
+import { Token } from "./entities/token";
+import * as dotenv from "dotenv";
 dotenv.config();
 
-console.log(__dirname + "/entities");
 const config: DataSourceOptions = {
   type: "postgres",
   host: "localhost",
   port: Number(process.env.DATABASE_PORT),
-  username: "postgres",
-  password: "pielly16",
-  database: "postgres",
-  entities: [Individual, Business, Product, Order,],
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [User, Business, Product, Order, Token],
   migrations: [__dirname + "/migrations/*{.ts,.js}"],
   synchronize: true,
   migrationsRun: false,
