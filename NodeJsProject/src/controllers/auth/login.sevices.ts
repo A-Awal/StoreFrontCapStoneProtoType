@@ -39,10 +39,9 @@ export const userLogin = async (
       return res.status(401).send({ message: "Invalid email or password" });
     }
 
-    req.user = user
-    
     return res.status(200).send({ message: "Logged in successfully"});
-  } catch (error) {
-    res.status(500).send("Internal Server Error");
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({message : "Log in failed"});
   }
 };

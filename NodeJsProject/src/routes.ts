@@ -13,13 +13,29 @@ router.use('/api/business', businessRouter);
 router.use("/api/auth/google", authRouter)
 router.use("/api/auth/facebook", facebookRouter);
 
-router.get("api/logout", (req: Request, res: Response, next: NextFunction) => {
+router.get("/api/logout", (req: Request, res: Response, next: NextFunction) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log("Session destroyed successfully.");
+    }
+  });
+
   req.logout((err) => {
     if (err) {
+      console.log(err);
+      
       return res.status(500).send("Internal Server Error");
     }
-    res.redirect("/login");
+    res.redirect("api/customer/login");
   });
 });
+
+
+router.all('api/*', (req:Request, res:Response, next: NextFunction) =>  {
+  console.log("404")
+  res.status(404).send("Resource not available")
+})
 
 

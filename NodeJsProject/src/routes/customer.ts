@@ -10,6 +10,6 @@ customerRouter.post("/login", userLogin);
 
 customerRouter.post("/signup", customerRegistration);
 
-customerRouter.get("/verify/:id:token", verifyAccount);
+customerRouter.post("/verify/:id:token", verifyAccount);
 
 customerRouter.post("/reset_password/:id/:token", setNewPassword);

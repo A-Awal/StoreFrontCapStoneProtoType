@@ -18,10 +18,10 @@ export const requestPasswordReset = async (
   }
 
   try {
-    const sendResetMail = new PasswordResetService();
-    await sendResetMail.sendResetEmail(value.email);
+    const passwordResetService = new PasswordResetService();
+    await passwordResetService.sendResetEmail(value.email);
 
-    res.status(201).send({
+    res.status(200).send({
       message: `Password reset link successfully sent to ${value.email}`,
     });
   } catch (error) {
@@ -49,13 +49,13 @@ export const setNewPassword = async (
         .status(401)
         .send({ message: `Password and confirm password do not match` });
     }
-    const setPassword = new PasswordResetService();
-    await setPassword.resetPassword(token, password, Number(id));
+    const passwordResetService = new PasswordResetService();
+    await passwordResetService.resetPassword(token, password, Number(id));
 
     res.status(201).send({
       message: `Password reset successful`,
     });
   } catch (error) {
-    res.status(500).send({ message: error });
+    res.status(500).send({ message: "Password reset failed" });
   }
 };

@@ -7,7 +7,7 @@ export const authRouter = express.Router();
 
 
 function isLoggegIn(req: Request, res: Response, next: NextFunction){
-  req.user ? next() : res.send('YOU FAILED')
+  req.user ? next() : res.send(`YOU FAILED ${req.user}`)
 }
 
 authRouter.get("/login/success",isLoggegIn, (req: Request, res: Response) => {
@@ -30,18 +30,33 @@ authRouter.get("/login/failed", (req: Request, res: Response) => {
   }
 });
 
-authRouter.get(
-  "/",
-  passport.authenticate("google", {scope : ['profile', 'email']})
-);
+authRouter.get("/", async (req, res, next) => {
+  try {
+    passport.authenticate("google", { scope: ["profile", "email"] })(
+      req,
+      res,
+      next
+    );
+  } catch (err) {
+    // handle the error in some way, such as displaying an error message to the user or logging the error
+    console.error(err);
+    res.status(500).send("Authentication failed");
+  }
+});
 
-authRouter.get(
-  "/redirect",
-  passport.authenticate("google", {
-    successRedirect: "https://storefrontsmes.amalitech-dev.net/",
-    failureRedirect: "https://storefrontsmes.amalitech-dev.net/",
-  })
-);
+authRouter.get("/redirect", async (req, res, next) => {
+  try {
+    passport.authenticate("google", {
+      successRedirect: "https://storefrontsmes.amalitech-dev.net",
+      failureRedirect: "https://storefrontsmes.amalitech-dev.net",
+    })(req, res, next);
+  } catch (err) {
+    // handle the error in some way, such as displaying an error message to the user or logging the error
+    console.error(err);
+    res.status(500).send("Authentication failed");
+  }
+});
+
 
 authRouter.get(
   "/logout",

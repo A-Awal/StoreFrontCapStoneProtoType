@@ -20,7 +20,7 @@ export const customerRegistration = async (
   });
 
   if (error) {
-    return res.status(404).send(error.details[0].message);
+    return res.status(400).send(error.details[0].message);
   }
   try {
     
@@ -54,6 +54,6 @@ export const customerRegistration = async (
     });
   } catch (error) {
     console.log(error)
-    res.status(500).send("Internal Server Error");
+    return res.status(500).send({ message: "Error creating customer" });
   }
 };

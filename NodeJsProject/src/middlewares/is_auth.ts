@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from "express";
-import session, { Session, SessionData } from "express-session";
+import  { Session, SessionData } from "express-session";
 import { UserRequestBody } from '../types/user.types'
 
+
 interface User {
-  id: number;
+  user: Partial<UserRequestBody>;
 }
 
 

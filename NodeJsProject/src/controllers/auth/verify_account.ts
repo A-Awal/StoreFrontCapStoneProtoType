@@ -24,6 +24,6 @@ export const verifyAccount = async (
 
     return res.send("Your account has been successfully activated");
   } catch (error) {
-    return res.status(400).send("An error occured");
+    return res.status(400).send("An error occurred while trying to activate your account. Please try again later");
   }
 };

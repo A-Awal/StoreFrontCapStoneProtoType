@@ -28,21 +28,29 @@ async function main() {}
 
   const pgSessionStore = pgSession(session);
 
+  const sessionLifespan = 30 * 24 * 60 * 60;
+
+
   app.use(
     session({
       store: new pgSessionStore({
         pool: pool,
         tableName: "user_sessions",
         createTableIfMissing: true,
+
       }),
-      secret: process.env.SESSION_SECRET,
+      secret: process.env.SESSION_SECRET!,
       resave: false,
-      saveUninitialized: true,
-     
+      saveUninitialized: false,
+      cookie: {
+        secure: true,
+        httpOnly: true,
+        maxAge : sessionLifespan,
+      },
     })
   );
 
-  app.use(helmet());
+  // app.use(helmet());
   app.use(compression());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -50,7 +58,7 @@ async function main() {}
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.use(router);
+  app.use("/",router);
 
   try {
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
