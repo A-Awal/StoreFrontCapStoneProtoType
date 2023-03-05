@@ -17,6 +17,7 @@ public class AppDataContext: DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Order>().HasKey(o => new { o.CustomerId, o.DateOrdered });
     }
 
 }
