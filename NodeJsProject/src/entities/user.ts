@@ -58,18 +58,13 @@ export class User extends Person {
   created_at: Date;
 
   public async generateAuthToken(): Promise<string> {
-    const token = jwt.sign(
-      { id: this.id },
-      crypto.randomBytes(32).toString("hex"),
-      {
-        expiresIn: "5h",
-      }
-    );
+    const token = jwt.sign({ id: this.id },"secretepassword",{expiresIn: "5h"});
     return token;
   }
+  
   public async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(Number(process.env.SALT));
-    const hash = await bcrypt.hash(password, salt);
+    // const salt = await bcrypt.genSalt(Number(process.env.SALT));
+    const hash = await bcrypt.hash(password, 12);
     return hash;
   }
 

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import express from "express";
+import express, { NextFunction, Response, Request } from "express";
 import {ApolloServer} from "apollo-server-express";
 import {buildSchema} from 'type-graphql';
 import { initializeDatabase } from "./config/db";
@@ -10,24 +10,10 @@ import session from "express-session";
 import { Pool } from "pg";
 
 import "./config/passport.config";
+import { Console } from "console";
 
 async function main() 
 {
-  
-  //const port: number = 5432;
-
-  const pool = new Pool({
-    user: "postgres",
-    host: "localhost",
-    database: "postgres",
-    password: `mantiq#1`,
-    port: 5432,
-  });
-
-  const pgSessionStore = pgSession(session);
-
-  const sessionLifespan = 30 * 24 * 60 * 60;
-
   const schema = await buildSchema({
     resolvers: [__dirname + "/controllers/auth/**/*.ts"]
   });
@@ -42,30 +28,16 @@ async function main()
 
   await apolloServer.start();
 
-  app.use(
-        session({
-          store: new pgSessionStore({
-            pool: pool,
-            tableName: "user_sessions",
-            createTableIfMissing: true,
-    
-          }),
-          secret: "mysecret",
-          resave: false,
-          saveUninitialized: false,
-          cookie: {
-            secure: true,
-            httpOnly: true,
-            maxAge : sessionLifespan,
-          },
-        })
-      );
-
+  app.use((req:Request, res:Response, next:NextFunction) => {
+    console.log("Hello!!!!!!");
+    next();
+    console.log("Got it!!!!");
+  })
   apolloServer.applyMiddleware({app});
 
-  app.listen(3000, (): void => {
+  app.listen(7000, (): void => {
     initializeDatabase();
-    console.log(`App started on port: ${3000}  ...`);
+    console.log(`App started on port: ${7000}  ...`);
   });
   
 }

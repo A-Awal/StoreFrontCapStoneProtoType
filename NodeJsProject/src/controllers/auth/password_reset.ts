@@ -37,7 +37,7 @@ export const setNewPassword = async (
 ) => {
   const { password, confirm_password } = req.body;
   const { id, token } = req.params;
-  const { error, value } = validateReset({ password, confirm_password });
+  const { error, value } = validateReset({ password, confirm_password }); // removed one var token
 
   if (error) {
     return res.status(404).send(error.details[0].message);
@@ -50,7 +50,7 @@ export const setNewPassword = async (
         .send({ message: `Password and confirm password do not match` });
     }
     const passwordResetService = new PasswordResetService();
-    await passwordResetService.resetPassword(token, password, Number(id));
+    await passwordResetService.resetPassword(password, Number(id));
 
     res.status(201).send({
       message: `Password reset successful`,

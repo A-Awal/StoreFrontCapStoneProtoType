@@ -1,20 +1,20 @@
 import {InputType, Field} from 'type-graphql';
-// import {minLength} from 'class-validator';
+import {Length} from 'class-validator';
 
 @InputType()
 export class RegisterInput
 {
-    @Field()
+    @Field(() => String)
     business_name: string;
 
-    @Field()
+    @Field(() => String)
     email: string;
 
-    @Field()
-    // @minLength(5)
+    @Field(() => String)
     password: string;
 
-    @Field()
+    @Field(() => String)
+    @Length(5)
     confirm_password: string;
 
 }
