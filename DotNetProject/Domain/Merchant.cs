@@ -5,8 +5,6 @@ namespace Domain
 {
     public class Merchant
 	{
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
         public Guid MerchantID { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
