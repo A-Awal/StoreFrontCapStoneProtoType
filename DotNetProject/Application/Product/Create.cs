@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Products
+namespace Application.Product
 {
     public class Create
     {
@@ -43,7 +43,7 @@ namespace Application.Products
 
             public async Task<string> Handle(Command request, CancellationToken cancellationToken)
             {
-                var product = _mapper.Map<Product>(request.ProductDto);
+                var product = _mapper.Map<Domain.Product>(request.ProductDto);
 
                 _context.Products.Add(product);
 
