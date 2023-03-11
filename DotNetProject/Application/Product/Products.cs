@@ -2,18 +2,18 @@
 using Persistence;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using Domain;
+using Application.Core;
 
-namespace Application.Products
+namespace Application.Product
 {
-    public class AllProducts
+    public class Products
     {
-        public class Query:IRequest<List<ProductDto>>
+        public class Query:IRequest<Result<List<ProductDto>>>
         {
 
         }
 
-        public class Handler: IRequestHandler<Query, List<ProductDto>>
+        public class Handler: IRequestHandler<Query, Result<List<ProductDto>>>
         {
             private readonly AppDataContext _dataContext;
             private readonly IMapper _mapper;
@@ -24,13 +24,13 @@ namespace Application.Products
                 _mapper = mapper;
             }
 
-            public async Task<List<ProductDto>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<List<ProductDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
                  List<ProductDto> products = await _dataContext.Products
                     .Select(p => _mapper.Map<ProductDto>(p))
                     .ToListAsync();
                 
-                return products;
+                return Result<List<ProductDto>>.Success(products);
             }
         }
     }

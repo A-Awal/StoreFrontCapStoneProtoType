@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Application.Products;
 using MediatR;
 using Application.Core;
 using FluentValidation.AspNetCore;
 using FluentValidation;
+using Application.Product;
 
 namespace API.Extensions
 {
@@ -11,7 +11,7 @@ namespace API.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            services.AddMediatR(typeof(AllProducts.Handler));
+            services.AddMediatR(typeof(Products.Handler));
             services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<Create>();

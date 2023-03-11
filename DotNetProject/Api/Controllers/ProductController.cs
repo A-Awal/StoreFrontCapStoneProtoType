@@ -1,13 +1,13 @@
-﻿using Application.Products;
+﻿using Api.Controllers;
+using Application.Core;
+using Application.Product;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController : BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -19,7 +19,7 @@ namespace API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProduct()
         {
-            return Ok(await _mediator.Send(new AllProducts.Query { }));
+            return HandleResult(await _mediator.Send(new Products.Query { }));
         }
 
         [HttpPost]
