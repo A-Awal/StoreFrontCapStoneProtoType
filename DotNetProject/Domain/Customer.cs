@@ -5,8 +5,6 @@ namespace Domain
 {
     public class Customer
 	{
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
         public Guid CustomerId { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }

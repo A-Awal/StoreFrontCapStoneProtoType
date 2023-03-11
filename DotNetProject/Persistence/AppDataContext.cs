@@ -16,8 +16,39 @@ public class AppDataContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Merchant>().HasKey(m => m.MerchantID);
+        modelBuilder.Entity<Customer>().HasKey(c => c.CustomerId);
+        modelBuilder.Entity<Product>().HasKey(p => p.ProductId);
+        modelBuilder.Entity<Store>( s => 
+        {
+            s.HasKey(s => s.StoreId);
 
-        modelBuilder.Entity<Order>().HasKey(o => new { o.CustomerId, o.DateOrdered });
+            s.HasOne<Merchant>(s => s.Merchant)
+            .WithMany(m => m.Stores)
+            .HasForeignKey(s => s.MerchantId);
+
+            s.HasMany<Product>(s => s.Inventory)
+            .WithOne(p => p.Store)
+            .HasForeignKey(p => p.StoreId);
+
+        });
+
+
+        modelBuilder.Entity<Order>( 
+            o =>
+            {
+            o.HasKey(d => new { d.CustomerId, d.DateOrdered });
+
+            o.HasOne<Product>(d => d.Product)
+            .WithMany(p => p.Orders)
+            .HasForeignKey(o => o.ProductId);
+
+            o.HasOne<Customer>()
+            .WithMany( o => o.Orders)
+            .HasForeignKey(o => o.CustomerId);
+
+            }
+        );
     }
 
 }

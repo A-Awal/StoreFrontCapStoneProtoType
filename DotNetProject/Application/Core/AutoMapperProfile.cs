@@ -1,6 +1,5 @@
-﻿using Application.Products;
+﻿using Application.Product;
 using AutoMapper;
-using Domain;
 
 namespace Application.Core
 {
@@ -8,8 +7,8 @@ namespace Application.Core
     {
         public AutoMapperProfile()
         {
-            CreateMap<Product, ProductDto>();
-            CreateMap<ProductDto, Product>();
+            CreateMap<Domain.Product, ProductDto>();
+            CreateMap<ProductDto, Domain.Product>();
         }
 
        

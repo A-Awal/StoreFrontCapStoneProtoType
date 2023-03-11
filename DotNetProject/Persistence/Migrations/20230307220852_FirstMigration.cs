@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class firstMigration : Migration
+    public partial class FirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,13 +15,13 @@ namespace Persistence.Migrations
                 name: "Customers",
                 columns: table => new
                 {
-                    CustomerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
-                    LastName = table.Column<string>(type: "TEXT", nullable: true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PassWord = table.Column<string>(type: "TEXT", nullable: true),
-                    Username = table.Column<string>(type: "TEXT", nullable: true)
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: true),
+                    LastName = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PassWord = table.Column<string>(type: "text", nullable: true),
+                    Username = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -32,12 +32,12 @@ namespace Persistence.Migrations
                 name: "Merchants",
                 columns: table => new
                 {
-                    MerchantID = table.Column<Guid>(type: "TEXT", nullable: false),
-                    FirstName = table.Column<string>(type: "TEXT", nullable: true),
-                    LastName = table.Column<string>(type: "TEXT", nullable: true),
-                    Email = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    Password = table.Column<string>(type: "TEXT", nullable: true)
+                    MerchantID = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirstName = table.Column<string>(type: "text", nullable: true),
+                    LastName = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    Password = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -48,10 +48,10 @@ namespace Persistence.Migrations
                 name: "Stores",
                 columns: table => new
                 {
-                    StoreId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    MerchantId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    StoreCategory = table.Column<string>(type: "TEXT", nullable: true),
-                    StoreName = table.Column<string>(type: "TEXT", nullable: true)
+                    StoreId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MerchantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    StoreCategory = table.Column<string>(type: "text", nullable: true),
+                    StoreName = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -68,33 +68,33 @@ namespace Persistence.Migrations
                 name: "Products",
                 columns: table => new
                 {
-                    ProductId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ProductName = table.Column<string>(type: "TEXT", nullable: true),
-                    ProductDescription = table.Column<string>(type: "TEXT", nullable: true),
-                    ProductCategory = table.Column<string>(type: "TEXT", nullable: true),
-                    Unit = table.Column<string>(type: "TEXT", nullable: true),
-                    Quantity = table.Column<int>(type: "INTEGER", nullable: false),
-                    StoreId = table.Column<int>(type: "INTEGER", nullable: false),
-                    StoreId1 = table.Column<Guid>(type: "TEXT", nullable: true)
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProductName = table.Column<string>(type: "text", nullable: true),
+                    ProductDescription = table.Column<string>(type: "text", nullable: true),
+                    ProductCategory = table.Column<string>(type: "text", nullable: true),
+                    Unit = table.Column<string>(type: "text", nullable: true),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    StoreId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.ProductId);
                     table.ForeignKey(
-                        name: "FK_Products_Stores_StoreId1",
-                        column: x => x.StoreId1,
+                        name: "FK_Products_Stores_StoreId",
+                        column: x => x.StoreId,
                         principalTable: "Stores",
-                        principalColumn: "StoreId");
+                        principalColumn: "StoreId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Orders",
                 columns: table => new
                 {
-                    CustomerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    DateOrdered = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ProductOrderedProductId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    QuantityOrdered = table.Column<int>(type: "INTEGER", nullable: false)
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DateOrdered = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uuid", nullable: false),
+                    QuantityOrdered = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,21 +106,22 @@ namespace Persistence.Migrations
                         principalColumn: "CustomerId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Orders_Products_ProductOrderedProductId",
-                        column: x => x.ProductOrderedProductId,
+                        name: "FK_Orders_Products_ProductId",
+                        column: x => x.ProductId,
                         principalTable: "Products",
-                        principalColumn: "ProductId");
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_ProductOrderedProductId",
+                name: "IX_Orders_ProductId",
                 table: "Orders",
-                column: "ProductOrderedProductId");
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_StoreId1",
+                name: "IX_Products_StoreId",
                 table: "Products",
-                column: "StoreId1");
+                column: "StoreId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Stores_MerchantId",
