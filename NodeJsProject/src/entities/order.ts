@@ -1,18 +1,32 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, OneToOne } from "typeorm";
-import { Individual } from "./individual";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne, CreateDateColumn, JoinTable, ManyToMany} from "typeorm";
+import { User } from "./user";
 import { Product } from "./product";
 
-@Entity('order')
+@Entity("order")
 export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany( () => Product, (product)=> product.order)
-  product: Product[];
+  @ManyToMany(() => Product, (product) => product.orders)
+  @JoinTable({
+    name: "orders_product",
+    joinColumn: {
+      name : "order",
+      referencedColumnName : "id"
+    },
+    inverseJoinColumn: {
+      name: "product",
+      referencedColumnName : "id"
+    }
+  })
+  products: Product[];
 
-  @OneToOne(()=> Individual, (indivdual)=> indivdual.order )
-  individual: Individual;
+  @OneToOne(() => User, (user) => user.order, )
+  user: User;
 
   @Column({ nullable: true })
   Quantity: number;
+
+  @CreateDateColumn()
+  created_at: Date;
 }

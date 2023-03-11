@@ -1,5 +1,7 @@
 {
         "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "module": "NodeNext",
@@ -9,7 +11,10 @@
         "sourceMap": true,
         "outDir": "build"
     },
-    
-    "include": ["src/**/*"],
+    "typeRoots": [
+      "./src/typings",
+      "./node_modules/@types"
+    ],
+    "include": ["src/**/*", "test"],
 }
 
