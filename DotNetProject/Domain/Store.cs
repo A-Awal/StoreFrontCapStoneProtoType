@@ -10,8 +10,6 @@ namespace Domain
 {
 	public class Store
 	{
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
         public Guid StoreId { get; set; }
 		public Guid MerchantId { get; set; }
 		public string StoreCategory { get; set; }
