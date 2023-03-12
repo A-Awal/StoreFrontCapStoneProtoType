@@ -8,7 +8,7 @@ import {
 import { Person } from "./utils/credential";
 import { Business } from "./business";
 import { Order } from "./order";
-import jwt from "jsonwebtoken";
+import {sign, verify, JwtPayload} from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -47,7 +47,7 @@ export class User extends Person {
   created_at: Date;
 
   public async generateAuthToken(): Promise<string> {
-    const token = jwt.sign(
+    const token = sign(
       { id: this.id },
       crypto.randomBytes(32).toString("hex"),
       {
@@ -64,5 +64,10 @@ export class User extends Person {
 
   public async comparePassword(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);
+  }
+
+  public async verifyAuthToken(token: string): Promise<string | JwtPayload> {
+    const decoded = verify(token, process.env.ACCESS_TOKEN_SECRET);
+    return decoded;
   }
 }

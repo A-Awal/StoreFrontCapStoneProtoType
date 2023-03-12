@@ -1,19 +1,48 @@
 import passport from "passport";
-
-
 import {
   Profile,
   Strategy as GoogleOAuth2Strategy,
   VerifyCallback,
 } from "passport-google-oauth20";
 import {
-  Strategy as FacebookStrategy,
   Profile as FacebookProfile,
+  Strategy as FacebookStrategy,
 } from "passport-facebook";
-
-import { Strategy as AppleStrategy } from "passport-apple";
-
 import { User, UserType } from "../entities/user";
+import { Strategy as LocalStrategy } from "passport-local";
+
+//login
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+    },
+    async (email, password, done) => {
+      try {
+        const user = await User.findOne({ where: { email: email } });
+
+        if (!user) {
+          return done(null, false, { message: "Invalid email or password." });
+        }
+        if (!user.activated) {
+          return done(null, false, {
+            message: "Please, activate your account.",
+          });
+        }
+        const passwordMatch = await user.comparePassword(password);
+        if (!passwordMatch) {
+          return done(null, false, {
+            message: "Invalid email or password.",
+          });
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
 
 // Google auth config
 passport.use(
@@ -30,15 +59,10 @@ passport.use(
       profile: Profile,
       done: VerifyCallback
     ) => {
-      console.log(accessToken);
-      console.log(profile);
-
       try {
         const user = await User.findOne({
           where: { email: profile._json.email },
         });
-
-        // If user doesn't exist creates a new user. (similar to sign up)
 
         if (!user) {
           const newUser = User.create({
@@ -46,32 +70,29 @@ passport.use(
             last_name: profile._json.family_name,
             email: profile._json.email,
             role: UserType.customer,
+            activated: true,
           });
-          newUser.activated = true;
 
           await newUser.save();
 
           if (newUser) {
-            done(null, newUser);
+            return done(null, newUser);
           }
-        } else {
-          done(null, user);
         }
+        return done(null, user);
       } catch (err) {
-        throw err;
+        return done(err);
       }
     }
   )
 );
-
-// Facebook oauth config
 passport.use(
   new FacebookStrategy(
     {
       clientID: process.env.FacebookClientID,
-      clientSecret: process.env.FacbookClientSecret,
+      clientSecret: process.env.FacebookClientSecret,
       callbackURL: process.env.Facebook_Redirect_Url,
-      profileFields: ["id", "emails", "name"], // specify the fields to retrieve from Facebook
+      profileFields: ["id", "email", "name"], // specify the fields to retrieve from Facebook
     },
     async (
       accessToken: string,
@@ -80,24 +101,24 @@ passport.use(
       done
     ) => {
       try {
-        console.log(profile);
-        let user = await User.findOne({
+        const user = await User.findOne({
           where: { email: profile._json.email },
         });
         if (!user) {
           const newUser = User.create({
             first_name: profile._json.first_name,
-            last_name : profile._json.last_name,
-            email : profile._json.email,
+            last_name: profile._json.last_name,
+            email: profile._json.email,
             role: UserType.business,
+            activated: true,
           });
           await newUser.save();
+
           if (newUser) {
-        done(null, newUser);
+            return done(null, newUser);
           }
-        } else {
-        done(null, user);
         }
+        return done(null, user);
       } catch (err) {
         return done(err);
       }
@@ -106,11 +127,10 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user) ;
+  done(null, (user as any).id);
 });
 
 passport.deserializeUser(async (id: number, done) => {
-  console.log(id);
   try {
     const user = await User.findOne({ where: { id: id } });
 
@@ -123,54 +143,3 @@ passport.deserializeUser(async (id: number, done) => {
     done(err);
   }
 });
-
-
-
-// passport.use(
-//   new AppleStrategy(
-//     {
-//       clientID: "YOUR_APPLE_ID_CLIENT_ID",
-//       teamID: "YOUR_APPLE_ID_TEAM_ID",
-//       keyID: "YOUR_APPLE_ID_KEY_ID",
-//       privateKeyPath: "PATH_TO_YOUR_APPLE_ID_PRIVATE_KEY",
-//       callbackURL: "http://localhost:3000/auth/apple/callback",
-//       passReqToCallback: true,
-//     },
-//     async (
-//       req: Request,
-//       accessToken: string,
-//       refreshToken: string,
-//       idToken: any,
-//       profile: any,
-//       done: any
-//     ) => {
-//       try {
-//         // Extract user data from the ID token
-//         const {
-//           sub: userId,
-//           email,
-//           email_verified: emailVerified,
-//         } = idToken.payload;
-
-//         // Check if the user is already registered
-//         const user = await User.findOne({ where: { appleId: userId } });
-
-//         if (!user) {
-//           // If the user is not registered, create a new user
-//           const newUser = await User.create({
-//             u
-//             appleId: userId,
-//             email,
-//             emailVerified,
-//           });
-//           done(null, newUser);
-//         } else {
-//           done(null, user);
-//         }
-//       } catch (error) {
-//         done(error);
-//       }
-//     }
-//   )
-// );
-

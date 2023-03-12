@@ -1,29 +1,28 @@
 import * as nodemailer from "nodemailer";
 
 export const sendMail = async (
-  email: string,
-  subject: string,
-  message: string,
-  heading :string
+    email: string,
+    subject: string,
+    message: string,
+    heading: string
 ): Promise<void> => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.HOST,
-    service: process.env.SERVICE,
-    port: 587,
-    secure: false, // set to true if using a secure connection (e.g. SSL/TLS)
-    auth: {
-      user: process.env.USER,
-      pass: process.env.PASS,
-    },
-  });
+    const transporter = nodemailer.createTransport({
+        host: process.env.HOST,
+        service: process.env.SERVICE,
+        port: 587,
+        secure: true, // set to true if using a secure connection (e.g. SSL/TLS)
+        auth: {
+            user: process.env.USER,
+            pass: process.env.PASS,
+        },
+    });
 
-
-  try {
-    await transporter.sendMail({
-      from: `noreply.${process.env.USER}`,
-      to: email,
-      subject: subject,
-      html: `<!DOCTYPE html>
+    try {
+        await transporter.sendMail({
+            from: "StoreFront SME's<" + process.env.USER + ">",
+            to: email,
+            subject: subject,
+            html: `<!DOCTYPE html>
 
 <html
   lang="en"
@@ -322,20 +321,22 @@ export const sendMail = async (
                                     class="alignment"
                                     style="line-height: 10px"
                                   >
-                                    <h3
+                                    <h2
                                       alt="I'm an image"
                                     
                                       style="
                                         display: block;
                                         height: auto;
                                         border: 0;
+                                        font-size: 34px;
                                         width: 149px;
                                         max-width: 100%;
+                                        color: #2799ff;
                                       "
                                       
                                       width="149">
 									  STOREFRONT
-									</h3>
+									</h2>
                                   </div>
                                 </td>
                               </tr>
@@ -633,7 +634,7 @@ export const sendMail = async (
                                       >
                                         <span
                                           style="
-                                            font-size: 30px;
+                                            font-size: 25px;
                                             color: #2b303a;
                                           "
                                           ><strong
@@ -691,11 +692,15 @@ export const sendMail = async (
                                         "
                                       >
                                         <span
-                                          style="
-                                            color: #808389;
+                                         
+                                          ><a href="${message}" ><button style="
+                                            color: #fff;
                                             font-size: 15px;
-                                          "
-                                          ><a href="${message}" >${message}</a></span
+                                            border: none;
+                                            border-radius:4px;
+                                            background-color: #0085ff;
+                                            padding: 12px 90px; 
+                                          ">Click Here</buttom></a></span
                                         >
                                       </p>
                                     </div>
@@ -938,7 +943,7 @@ export const sendMail = async (
                                             font-size: 12px;
                                           "
                                           >
-                                          This link expires in 60 minutes <br>
+                                          The link expires in 60 minutes <br>
                                           Ignore the message, if you did not
                                           register an account with
                                           storefront</span
@@ -1148,10 +1153,8 @@ export const sendMail = async (
   </body>
 </html>
 `,
-    });
-  } catch (error) {
-    throw new Error(`Error sending email to ${email}: ${error}`);
-  }
+        });
+    } catch (error) {
+        throw new Error(`Error sending email to ${email}: ${error}`);
+    }
 };
-
-export const subject = "Account Activation Link";

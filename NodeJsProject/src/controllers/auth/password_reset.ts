@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { PasswordResetService } from "../../services/password_reset.services";
-import {
-  validateEmail,
-  validateReset,
-} from "../../utils/validations/login_schema";
+import { userSchema } from "../../utils/validator";
 
 export const requestPasswordReset = async (
   req: Request,
@@ -12,50 +9,72 @@ export const requestPasswordReset = async (
 ): Promise<Response<any, Record<string, any>>> => {
   const { email } = req.body;
 
-  const { error, value } = validateEmail({ email });
-  if (error) {
-    return res.status(404).send(error.details[0].message);
+  const emailSchema = userSchema.pick({ email: true });
+  const validUser = await emailSchema.safeParseAsync({ email });
+  if (validUser.success === false) {
+    return res.status(400).send(validUser.error);
   }
-
   try {
-    const passwordResetService = new PasswordResetService();
-    await passwordResetService.sendResetEmail(value.email);
+    const {
+      data: { email },
+    } = validUser;
+    const passwordResetService =
+      await new PasswordResetService().sendResetEmail(email);
 
-    res.status(200).send({
-      message: `Password reset link successfully sent to ${value.email}`,
+    res.status(passwordResetService.status).send({
+      message: passwordResetService.message,
     });
   } catch (error) {
-    res.status(500).send({ message: error });
+    console.error(error);
+    res.status(500).send({ message: "Password reset unsuccessful" });
   }
 };
-
 
 export const setNewPassword = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
-  const { password, confirm_password } = req.body;
-  const { id, token } = req.params;
-  const { error, value } = validateReset({ password, confirm_password });
+): Promise<Response<any, Record<string, any>>> => {
+  const { password, confirm_password, token } = req.body;
 
-  if (error) {
-    return res.status(404).send(error.details[0].message);
+  const passwordSchema = userSchema.pick({
+    password: true,
+    confirm_password: true,
+    token: true,
+  });
+
+  const validUser = await passwordSchema.safeParseAsync({
+    password,
+    confirm_password,
+    token,
+  });
+
+  if (validUser.success === false) {
+    return res.status(400).send(validUser.error);
   }
   try {
+    const {
+      data: { password, confirm_password, token },
+    } = validUser;
     const isValidPassword = password === confirm_password;
     if (!isValidPassword) {
-      return res
-        .status(401)
-        .send({ message: `Password and confirm password do not match` });
+      return res.status(400).send({
+        message: `Password and confirm password do not match. Please ensure both fields contain the same value.`,
+      });
     }
-    const passwordResetService = new PasswordResetService();
-    await passwordResetService.resetPassword(token, password, Number(id));
+    const passwordResetService = await new PasswordResetService().resetPassword(
+      password,
+      token
+    );
 
-    res.status(201).send({
-      message: `Password reset successful`,
+    res.status(passwordResetService.status).send({
+      message: passwordResetService.message,
     });
   } catch (error) {
-    res.status(500).send({ message: "Password reset failed" });
+    console.error(error);
+    res.status(500).send({
+      message:
+        "Sorry, something went wrong while resetting your password. Please try again later.",
+    });
   }
 };

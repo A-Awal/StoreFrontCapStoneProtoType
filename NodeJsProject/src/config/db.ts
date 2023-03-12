@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
 import config from "../ormconfig";
 
-export const AppDataSource : DataSource = new DataSource(config);
+ const AppDataSource : DataSource = new DataSource(config);
 
 export async  function initializeDatabase() {
   await AppDataSource.initialize()

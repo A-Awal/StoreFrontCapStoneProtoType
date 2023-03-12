@@ -1,17 +1,23 @@
 import { NextFunction, Response, Request } from "express";
-import { UserRequestBody } from "../../types/user.types";
 import { RegistrationService } from "../../services/register.services";
-import { validateCustomerReg } from "../../utils/validations/customer";
+import { userSchema } from "../../utils/validator";
 import { User } from "../../entities/user";
+import { CustomerRequestBody } from "../../types/user.types";
 
 export const customerRegistration = async (
-  req: Request<{}, {}, Partial<UserRequestBody>>,
+  req: Request<{}, {}, CustomerRequestBody>,
   res: Response,
   next: NextFunction
 ): Promise<Response<any, Record<string, any>>> => {
   let { first_name, last_name, email, password, confirm_password } = req.body;
 
-  const { error, value } = validateCustomerReg({
+  const customerUserSchema = userSchema.omit({
+    business_name: true,
+    id: true,
+    token: true,
+  });
+
+  const validUser = await customerUserSchema.safeParseAsync({
     first_name,
     last_name,
     email,
@@ -19,41 +25,50 @@ export const customerRegistration = async (
     confirm_password,
   });
 
-  if (error) {
-    return res.status(400).send(error.details[0].message);
+  if (validUser.success == false) {
+    return res.status(400).send(validUser.error);
   }
   try {
-    
-    console.log(email, value.email);
-    const user = await User.findOne({ where: { email: value.email } });
+    const {
+      data: { first_name, last_name, email, password, confirm_password },
+    } = validUser;
+
+    const user: User | undefined = await User.findOne({
+      where: { email },
+    });
 
     if (user) {
-      return res.status(401).send({ message: "Email already exists, Log in" });
+      return res.status(409).send({
+        message:
+          "Registration failed, email already exists. Please log in or use another email",
+      });
     }
 
     const isValidPassword = password === confirm_password;
 
     if (!isValidPassword) {
-      return res
-        .status(401)
-        .send({ message: "Password and confirm password do not match" });
+      return res.status(401).send({
+        message: "Password and confirm password do not match",
+      });
     }
-    console.log(email, value.email)
+
     const customerRegistration = new RegistrationService();
     const customer = await customerRegistration.createCustomer({
       first_name,
       last_name,
-      email: value.email,
+      email,
       password,
-     
+      confirm_password,
     });
-     customerRegistration.createToken(customer);
+    customerRegistration.createToken(customer);
 
-    return res.status(200).send({
-      message: `Activate your account with the link sent to ${customer.email}`
+    return res.status(201).send({
+      message: `Activate your account with the link sent to ${customer.email}`,
     });
   } catch (error) {
-    console.log(error)
-    return res.status(500).send({ message: "Error creating customer" });
+    console.error(error);
+    res.status(500).send({
+      message: "Sorry, something went wrong. Please try again later",
+    });
   }
 };
