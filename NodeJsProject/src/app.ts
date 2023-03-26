@@ -1,81 +1,39 @@
-import { config } from "dotenv";
-config();
-
-import express, { Application, Request, Response, NextFunction } from "express";
-import compression from "compression";
+import "reflect-metadata";
+import dotenv from "dotenv";
+dotenv.config();
+import express, { Request, Response, NextFunction } from "express";
 import cors, { CorsOptions } from "cors";
 import { initializeDatabase } from "./config/db";
-import { router } from "./routes";
 import passport from "passport";
-import session from "express-session";
-import pgSession from "connect-pg-simple";
-import { Pool } from "pg";
-const helmet = require("helmet");
+import { router } from "./routes";
 import "./config/passport.config";
+import { initswagger } from "./utils/swagger";
 
-async function main() {}
-{
-  const app: Application = express();
-  const port: number = Number(process.env.PORT);
+async function main() {
+    const app = express();
+    const port: number = Number(process.env.PORT);
 
-  const pool = new Pool({
-    user: process.env.DB_USER,
-    host: "localhost",
-    database: process.env.DB_NAME,
-    password: `${process.env.DB_PASSWORD}`,
-    port: Number(process.env.DB_PORT),
-  });
+    app.use(cors({}));
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(passport.initialize());
 
-  const pgSessionStore = pgSession(session);
+    app.use(router);
 
-  const sessionLifespan = 30 * 24 * 60 * 60;
-
-
-  app.use(
-    session({
-      store: new pgSessionStore({
-        pool: pool,
-        tableName: "user_sessions",
-        createTableIfMissing: true,
-
-      }),
-      secret: process.env.SESSION_SECRET!,
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: true,
-        httpOnly: true,
-        maxAge : sessionLifespan,
-      },
-    })
-  );
-
-  // app.use(helmet());
-  app.use(compression());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cors());
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  app.use("/",router);
-
-  try {
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-      console.error(err.stack);
-      res.status(500).send({
-        message: "Internal Server Error",
-        error: err.message,
-      });
+        if (res.headersSent) {
+            return next(err);
+        }
+        res.status(500).send({
+            message: "Internal Server Error",
+            error: err.message,
+        });
     });
-
-    app.listen(port, (): void => {
-      initializeDatabase();
-      console.log(`App started on port: ${port}  ...`);
+    initswagger(app);
+    app.listen(port, function (): void {
+        initializeDatabase();
+        console.log(`App started on port ${port}...`);
     });
-  } catch (error) {
-    throw error;
-  }
 }
 
 main();

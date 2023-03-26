@@ -1,15 +1,31 @@
 import express from "express";
-import { userLogin } from "../controllers/auth/login.sevices";
-import { customerRegistration } from "../controllers/auth/customer.auth";
-import { verifyAccount } from "../controllers/auth/verify_account";
-import { setNewPassword } from "../controllers/auth/password_reset";
+import { loginHandler } from "../controllers/auth/auth.controller.";
+import { customerRegistration } from "../controllers/auth/customer.controller";
+import passport from "passport";
+import { customerOrderDetails, customerOrders } from "./../controllers/order";
 
 export const customerRouter = express.Router();
 
-customerRouter.post("/login", userLogin);
+customerRouter.post("/login", loginHandler);
 
 customerRouter.post("/signup", customerRegistration);
 
-customerRouter.post("/verify/:id:token", verifyAccount);
+customerRouter.get(
+  "/customer-orders",
+  passport.authenticate(
+    "jwt",
 
-customerRouter.post("/reset_password/:id/:token", setNewPassword);
+    { session: false }
+  ),
+  customerOrders
+);
+
+customerRouter.get(
+  "/customer-order-details",
+  passport.authenticate(
+    "jwt",
+
+    { session: false }
+  ),
+  customerOrderDetails
+);

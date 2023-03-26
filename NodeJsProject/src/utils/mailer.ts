@@ -695,7 +695,7 @@ export const sendMail = async (
                                             color: #808389;
                                             font-size: 15px;
                                           "
-                                          ><a href="${message}" >${message}</a></span
+                                          ><a href="${message}" >Click Here</a></span
                                         >
                                       </p>
                                     </div>

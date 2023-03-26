@@ -1,32 +1,37 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToOne, CreateDateColumn, JoinTable, ManyToMany} from "typeorm";
+import {
+  BaseEntity,
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToOne,
+  CreateDateColumn,
+} from "typeorm";
+import { OrderItems } from "./purchase";
 import { User } from "./user";
-import { Product } from "./product";
+// import { OrderItems } from "./purchase";
 
-@Entity("order")
+@Entity("Orders")
 export class Order extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid", { name: "OrderId" })
+  id: string;
 
-  @ManyToMany(() => Product, (product) => product.orders)
-  @JoinTable({
-    name: "orders_product",
-    joinColumn: {
-      name : "order",
-      referencedColumnName : "id"
-    },
-    inverseJoinColumn: {
-      name: "product",
-      referencedColumnName : "id"
-    }
-  })
-  products: Product[];
-
-  @OneToOne(() => User, (user) => user.order, )
+  @Column({name: "CustomerId"})
+  customer_id: string
+  @ManyToOne(() => User, (user) => user.orders, { nullable: false, onDelete: "CASCADE" })
+  @JoinColumn({ name: "CustomerId" })
   user: User;
 
-  @Column({ nullable: true })
-  Quantity: number;
+  @CreateDateColumn({ name: "DateOrdered", type: "timestamp with time zone" })
+  date_ordered: Date;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @Column("numeric", { name: "TotalAmount" })
+  total_amount: number;
+
+  @Column({ name: "OrderState" })
+  order_state: number;
+
+  @OneToOne(() => OrderItems, (orderItems) => orderItems.order)
+  orderItems: OrderItems;
 }

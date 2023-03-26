@@ -1,176 +1,187 @@
 import passport from "passport";
-
-
 import {
-  Profile,
-  Strategy as GoogleOAuth2Strategy,
-  VerifyCallback,
+    Profile,
+    Strategy as GoogleOAuth2Strategy,
+    VerifyCallback,
 } from "passport-google-oauth20";
 import {
-  Strategy as FacebookStrategy,
-  Profile as FacebookProfile,
+    Profile as FacebookProfile,
+    Strategy as FacebookStrategy,
 } from "passport-facebook";
+import { User } from "../entities/user";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { userSchema } from "../utils/validator";
 
-import { Strategy as AppleStrategy } from "passport-apple";
 
-import { User, UserType } from "../entities/user";
+const jwtOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.ACCESS_TOKEN_SECRET as string,
+};
+
+passport.use(
+    new JwtStrategy(jwtOptions, (jwtPayload, done) => {
+        User.findOne({ where: { id: jwtPayload.id } })
+            .then((user) => {
+                if (user) {
+                    done(null, user);
+                } else {
+                    done(null, false, { message: "User not found" });
+                }
+            })
+            .catch((err) => {
+                console.error(`error authenticating : ${err}`);
+                done(err, false, { message: "Erorr logging in" });
+            });
+    })
+);
+
+//login
+passport.use(
+    new LocalStrategy(
+        {
+            usernameField: "email",
+        },
+        async (email, password, done) => {
+            const loginSchema = userSchema.pick({
+                email: true,
+                password: true,
+            });
+            const validUser = await loginSchema.safeParseAsync({
+                email,
+                password,
+            });
+
+            if (validUser.success === false) {
+                return done(null, false, validUser.error);
+            }
+
+            try {
+                const { data } = validUser;
+                const user = await User.findOne({
+                    where: { email: data.email },
+                });
+
+                if (!user) {
+                    return done(null, false, {
+                        message: "Invalid credentials.",
+                    });
+                }
+                if (!user.activated) {
+                    return done(null, false, {
+                        message: "Please, activate your account.",
+                    });
+                }
+                const isPasswordMatch = await user.comparePassword(password);
+                if (!isPasswordMatch) {
+                    return done(null, false, {
+                        message: "Invalid credentials.",
+                    });
+                }
+
+                return done(null, user);
+            } catch (err) {
+                console.error(`error authenticating : ${err}`);
+                return done(err);
+            }
+        }
+    )
+);
 
 // Google auth config
 passport.use(
-  new GoogleOAuth2Strategy(
-    {
-      clientID: process.env.GoogleClientId!,
-      clientSecret: process.env.GoogleClientSecret!,
-      callbackURL: process.env.Google_Redirect_Url!,
-      scope: ["profile", "email"],
-    },
-    async (
-      accessToken: string,
-      refreshToken: string,
-      profile: Profile,
-      done: VerifyCallback
-    ) => {
-      console.log(accessToken);
-      console.log(profile);
+    new GoogleOAuth2Strategy(
+        {
+            clientID: process.env.GoogleClientId,
+            clientSecret: process.env.GoogleClientSecret,
+            callbackURL: process.env.Google_Redirect_Url,
+            scope: ["profile", "email"],
+        },
+        async (
+            accessToken: string,
+            refreshToken: string,
+            profile: Profile,
+            done: VerifyCallback
+        ) => {
+            try {
+                const user = await User.findOne({
+                    where: { oauth_id: profile.id },
+                });
+                const userEmail = await User.findOne({
+                    where: { email: profile._json.email },
+                });
 
-      try {
-        const user = await User.findOne({
-          where: { email: profile._json.email },
-        });
-
-        // If user doesn't exist creates a new user. (similar to sign up)
-
-        if (!user) {
-          const newUser = User.create({
-            first_name: profile._json.given_name,
-            last_name: profile._json.family_name,
-            email: profile._json.email,
-            role: UserType.customer,
-          });
-          newUser.activated = true;
-
-          await newUser.save();
-
-          if (newUser) {
-            done(null, newUser);
-          }
-        } else {
-          done(null, user);
+                if (!user) {
+                    if (userEmail) {
+                        return done(null, false, {
+                            message:
+                                "Email already exist, Please use a different account or login",
+                        });
+                    }
+                    const newUser = User.create({
+                        oauth_id: profile.id,
+                        first_name: profile._json.given_name,
+                        last_name: profile._json.family_name,
+                        email: profile._json.email,
+                        activated: true,
+                    });
+                    await newUser.save();
+                    return done(null, newUser);
+                }
+                return done(null, user);
+            } catch (err) {
+                console.error(`error authenticating : ${err}`);
+                return done(err);
+            }
         }
-      } catch (err) {
-        throw err;
-      }
-    }
-  )
+    )
 );
 
-// Facebook oauth config
 passport.use(
-  new FacebookStrategy(
-    {
-      clientID: process.env.FacebookClientID,
-      clientSecret: process.env.FacbookClientSecret,
-      callbackURL: process.env.Facebook_Redirect_Url,
-      profileFields: ["id", "emails", "name"], // specify the fields to retrieve from Facebook
-    },
-    async (
-      accessToken: string,
-      refreshToken: string,
-      profile: FacebookProfile,
-      done
-    ) => {
-      try {
-        console.log(profile);
-        let user = await User.findOne({
-          where: { email: profile._json.email },
-        });
-        if (!user) {
-          const newUser = User.create({
-            first_name: profile._json.first_name,
-            last_name : profile._json.last_name,
-            email : profile._json.email,
-            role: UserType.business,
-          });
-          await newUser.save();
-          if (newUser) {
-        done(null, newUser);
-          }
-        } else {
-        done(null, user);
+    new FacebookStrategy(
+        {
+            clientID: process.env.FacebookClientID,
+            clientSecret: process.env.FacebookClientSecret,
+            callbackURL: process.env.Facebook_Redirect_Url,
+            profileFields: ["id", "email", "name"], // specify the fields to retrieve from Facebook
+        },
+        async (
+            accessToken: string,
+            refreshToken: string,
+            profile: FacebookProfile,
+            done
+        ) => {
+            try {
+                const user = await User.findOne({
+                    where: { oauth_id: profile.id },
+                });
+                const userEmail = await User.findOne({
+                    where: { email: profile._json.email },
+                });
+
+                if (!user) {
+                    if (userEmail) {
+                        return done(null, false, {
+                            message:
+                                "Email already exist, Please use a different account or login",
+                        });
+                    }
+                    const newUser = User.create({
+                        oauth_id: profile.id,
+                        first_name: profile._json.first_name,
+                        last_name: profile._json.last_name,
+                        email: profile._json.email,
+                        activated: true,
+                    });
+                    await newUser.save();
+                    return done(null, newUser);
+                }
+
+                return done(null, user);
+            } catch (err) {
+                console.error(`error authenticating : ${err}`);
+                return done(err);
+            }
         }
-      } catch (err) {
-        return done(err);
-      }
-    }
-  )
+    )
 );
-
-passport.serializeUser((user, done) => {
-  done(null, user) ;
-});
-
-passport.deserializeUser(async (id: number, done) => {
-  console.log(id);
-  try {
-    const user = await User.findOne({ where: { id: id } });
-
-    if (user) {
-      done(null, user);
-    } else {
-      done(new Error("User not found"));
-    }
-  } catch (err) {
-    done(err);
-  }
-});
-
-
-
-// passport.use(
-//   new AppleStrategy(
-//     {
-//       clientID: "YOUR_APPLE_ID_CLIENT_ID",
-//       teamID: "YOUR_APPLE_ID_TEAM_ID",
-//       keyID: "YOUR_APPLE_ID_KEY_ID",
-//       privateKeyPath: "PATH_TO_YOUR_APPLE_ID_PRIVATE_KEY",
-//       callbackURL: "http://localhost:3000/auth/apple/callback",
-//       passReqToCallback: true,
-//     },
-//     async (
-//       req: Request,
-//       accessToken: string,
-//       refreshToken: string,
-//       idToken: any,
-//       profile: any,
-//       done: any
-//     ) => {
-//       try {
-//         // Extract user data from the ID token
-//         const {
-//           sub: userId,
-//           email,
-//           email_verified: emailVerified,
-//         } = idToken.payload;
-
-//         // Check if the user is already registered
-//         const user = await User.findOne({ where: { appleId: userId } });
-
-//         if (!user) {
-//           // If the user is not registered, create a new user
-//           const newUser = await User.create({
-//             u
-//             appleId: userId,
-//             email,
-//             emailVerified,
-//           });
-//           done(null, newUser);
-//         } else {
-//           done(null, user);
-//         }
-//       } catch (error) {
-//         done(error);
-//       }
-//     }
-//   )
-// );
-

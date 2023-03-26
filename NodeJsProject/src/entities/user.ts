@@ -1,22 +1,11 @@
-import {
-  Entity,
-  Column,
-  OneToMany,
-  OneToOne,
-  CreateDateColumn,
-} from "typeorm";
+import { Entity, Column, OneToMany, OneToOne, CreateDateColumn } from "typeorm";
 import { Person } from "./utils/credential";
-import { Business } from "./business";
+import { Store } from "./store";
 import { Order } from "./order";
-import jwt from "jsonwebtoken";
+import { sign, verify, JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import crypto from "crypto";
-
-
-export enum UserType {
-  customer = "customer",
-  business = "business",
-}
+import { CreditCard } from "./payment_method";
+import { Shipping } from './shipping_details';
 
 @Entity("user")
 export class User extends Person {
@@ -32,29 +21,43 @@ export class User extends Person {
   @Column({ default: false })
   activated: boolean;
 
-  @Column({ type: "enum", enum: UserType })
+  @Column({ nullable: true })
   role: string;
-
-  @OneToOne(() => Order, (order) => order.user, { nullable: true })
-  order: Order;
-
-  @OneToMany(() => Business, (business) => business.user, {
-    nullable: true,
-  })
-  business: Business[];
 
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ nullable: true, type: "uuid", name: "orderId" })
+  order_id?: string;
+
+  @Column({ nullable: true })
+  oauth_id?: string;
+
+  @OneToMany(() => Order, (orders) => orders.user, { nullable: true })
+  orders: Order[];
+
+  @OneToMany(() => Store, (store) => store.user, {
+    nullable: true,
+  })
+  store: Store[];
+  @OneToOne(() => CreditCard, (creditCard) => creditCard.user)
+  creditCard: CreditCard;
+
+  @OneToOne(() => Shipping, (shipping) => shipping.user, {
+    nullable: true,
+    onDelete: "CASCADE",
+  })
+  shipping: Shipping
+
   public async generateAuthToken(): Promise<string> {
-    const token = jwt.sign(
-      { id: this.id },
-      crypto.randomBytes(32).toString("hex"),
-      {
-        expiresIn: "5h",
-      }
-    );
+    const token = sign({ id: this.id }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: process.env.TOKEN_EXPIRES_IN,
+    });
     return token;
+  }
+  public async verifyAuthToken(token: string): Promise<string | JwtPayload> {
+    const decoded = verify(token, process.env.ACCESS_TOKEN_SECRET);
+    return decoded;
   }
   public async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(Number(process.env.SALT));
@@ -62,7 +65,10 @@ export class User extends Person {
     return hash;
   }
 
-  public async comparePassword(password: string): Promise<boolean> {
-    return await bcrypt.compare(password, this.password);
+  public async comparePassword(password?: string): Promise<boolean> {
+    if (this.password == undefined) {
+      return false;
+    }
+    return bcrypt.compare(password, this.password);
   }
 }

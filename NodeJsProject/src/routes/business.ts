@@ -1,15 +1,25 @@
 import express from "express";
-import { verifyAccount } from "../controllers/auth/verify_account";
+import { verifyAccount } from "../controllers/auth/activate_account.controllers";
+import { businessRegistration } from "../controllers/auth/merchant.controller";
+import passport from "passport";
 import {
-  businessRegistration
-} from "../controllers/auth/business.auth";
-import { requestPasswordReset, setNewPassword } from "../controllers/auth/password_reset";
-
+  requestPasswordReset,
+  setNewPassword,
+} from "../controllers/auth/password_reset.controller";
+import {
+  loginHandler,
+  logoutHandler,
+} from "../controllers/auth/auth.controller.";
 
 export const businessRouter = express.Router();
 
+businessRouter.post("/login", loginHandler);
 businessRouter.post("/signup", businessRegistration);
-
-businessRouter.post("/verify/:id/:token", verifyAccount);
-
-businessRouter.post("/reset/:id/:token", setNewPassword);
+businessRouter.post("/verify", verifyAccount);
+businessRouter.post("/reset", requestPasswordReset);
+businessRouter.post("/new_password", setNewPassword);
+businessRouter.post(
+  "/logout",
+  passport.authenticate("jwt", { session: false }),
+  logoutHandler
+);

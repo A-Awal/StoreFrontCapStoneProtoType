@@ -5,43 +5,47 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  ManyToMany,
 } from "typeorm";
-import { Business } from "./business";
-import { Order } from "./order";
+import { OrderItems } from "./purchase";
+import { Store } from "./store";
 
-enum Category {
-  Blog = "Blog",
-  Finance = "Finance",
-  Ecommerce = "e-Commerce",
-}
-
-@Entity("product")
+@Entity("Products")
 export class Product extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid", { name: "ProductId" })
+  Id: string;
 
-  @Column()
-  name: string;
+  @Column({ name: "ProductName", type: "text", nullable: true })
+  product_name: string;
 
-  @Column()
-  category: Category;
+  @Column({ type: "text", name: "ProductDescription", nullable: true })
+  product_description: string;
 
-  @Column()
-  description: string;
+  @Column({ type: "text", name: "ProductCategory", nullable: true })
+  product_category: string;
 
-  @Column()
-  unit: string;
+  @Column({ type: "text", name: "UnitOfMeasurement", nullable: true })
+  unit_of_measurement: string;
 
-  @Column()
-  quantity: string;
+  @Column({ name: "Quantity" })
+  quantity: number;
 
-  @ManyToMany(() => Order, (order) => order.products)
-  orders: Order[];
+  @Column({ name: "Publish", nullable: false })
+  publish: boolean;
 
-  @ManyToOne(() => Business, (business) => business.product, { nullable: true, onDelete: "CASCADE" })
-  @JoinColumn({
-    name: "business_id",
+  @Column({ nullable: false, name: "UnitPrice", type: "numeric" })
+  unit_price: number;
+
+  @Column({ nullable: false })
+  StoreId: string;
+  @ManyToOne(() => Store, (store) => store.products, {
+    nullable: true,
+    onDelete: "CASCADE",
   })
-  business: Business;
+  @JoinColumn({
+    name: "StoreId",
+  })
+  store: Store;
+
+  // @ManyToOne(() => OrderItems, (orderItems) => orderItems.products)
+  // orderItems: OrderItems;
 }
