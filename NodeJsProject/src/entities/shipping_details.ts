@@ -9,10 +9,7 @@ export class Shipping extends BaseEntity{
 
   @Column('uuid', {name:"StoreId"} )
   store_id: string;
-  @OneToOne(() => Store, (store) => store.shipping, {
-    nullable: false,
-    onDelete: "CASCADE",
-  })
+  @OneToOne(() => Store, (store) => store.shipping)
   @JoinColumn({
     name: "StoreId",
   })

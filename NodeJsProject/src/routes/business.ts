@@ -10,8 +10,11 @@ import {
   loginHandler,
   logoutHandler,
 } from "../controllers/auth/auth.controller.";
+import { supportContact } from "../controllers/support";
+import { updateProfile } from "../controllers/profile_update";
 
 export const businessRouter = express.Router();
+
 
 businessRouter.post("/login", loginHandler);
 businessRouter.post("/signup", businessRegistration);
@@ -22,4 +25,14 @@ businessRouter.post(
   "/logout",
   passport.authenticate("jwt", { session: false }),
   logoutHandler
+);
+businessRouter.post(
+  "/support",
+  passport.authenticate("jwt", { session: false }),
+  supportContact
+);
+businessRouter.post(
+  "/profile-update",
+  passport.authenticate("jwt", { session: false }),
+  updateProfile
 );

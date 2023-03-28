@@ -10,13 +10,8 @@ export const customerOrders = async (
 ): Promise<Response<any, Record<string, any>>> => {
   try {
     const user: Partial<User> = req.user;
-    let customer: OrdersType;
-    customer = await User.findOne({
-      where: { id: user.id },
-      relations: ["orders"],
-    });
-    const {first_name, last_name, orders} = customer
-    return res.send({first_name, last_name, orders});
+    const  order : OrdersType = await new CustomerOrder().getOrders(user)
+    return res.send(order);
   } catch (err) {
     res.status(500).send({ message: "Error getting customer order" });
     throw new Error(`Error getting customer order: ${err}`);
@@ -30,9 +25,9 @@ export const customerOrderDetails = async (
 ): Promise<Response<any, Record<string, any>>> => {
   try {
     const user: Partial<User> = req.user;
-    const customer = await new CustomerOrder().getOrderDetails(user);
+    const orderDetails = await new CustomerOrder().getOrderDetails(user);
 
-    return res.send(customer);
+    return res.send(orderDetails);
   } catch (err) {
     res.status(500).send({ message: "Error getting customer order" });
     throw new Error(`Error getting customer order: ${err}`);

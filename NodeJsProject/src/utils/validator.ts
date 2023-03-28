@@ -39,4 +39,5 @@ export const userSchema = z.object({
         .trim(),
     token: z.string().nonempty("Token can not be empty"),
     rememberMe: z.boolean().optional(),
+    phone_number: z.string().optional(),
 });

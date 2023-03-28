@@ -5,14 +5,18 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
+  OneToOne,
+  ManyToMany,
+  OneToMany,
 } from "typeorm";
 import { OrderItems } from "./purchase";
 import { Store } from "./store";
+import { Image } from "./photo";
 
 @Entity("Products")
 export class Product extends BaseEntity {
   @PrimaryGeneratedColumn("uuid", { name: "ProductId" })
-  Id: string;
+  id: string;
 
   @Column({ name: "ProductName", type: "text", nullable: true })
   product_name: string;
@@ -46,6 +50,9 @@ export class Product extends BaseEntity {
   })
   store: Store;
 
-  // @ManyToOne(() => OrderItems, (orderItems) => orderItems.products)
-  // orderItems: OrderItems;
+  // @OneToMany(() => OrderItems, (orderItems) => orderItems.product)
+  // orderItems: OrderItems[];
+
+  @OneToOne(() => Image, (image) => image.product)
+  image: Image;
 }

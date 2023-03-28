@@ -10,7 +10,10 @@
     "test": "jest --watchAll",
     "build": "tsc -p .",
     "start": "node ./build/app.js",
-    "dev": "nodemon ./src/app.ts"
+    "dev": "nodemon ./src/app.ts",
+    "typeorm": "npm run build && npx typeorm -d build/config/db.js",
+    "generateMigration" : "npm run typeorm -- migration:generate src/migrations/Init -p",
+    "runMigration": "npm run typeorm -- migration:run"
   },
   "keywords": [],
   "author": "",

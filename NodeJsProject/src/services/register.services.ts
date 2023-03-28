@@ -47,7 +47,7 @@ export class RegistrationService {
     }
   }
 
-  public async createCustomer(customer: CustomerRequestBody): Promise<User> {
+  public async createCustomer(customer: Partial<CustomerRequestBody>): Promise<User> {
     try {
       const hashedPassword = await this.hashPassword(customer.password);
 

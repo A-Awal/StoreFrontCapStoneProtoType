@@ -2,29 +2,30 @@ import {
   BaseEntity,
   Entity,
   Column,
-  OneToMany,
-  OneToOne,
   JoinColumn,
   CreateDateColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryColumn,
 } from "typeorm";
 import { Product } from "./Product";
 import { Order } from "./order";
 
 @Entity("Purchases")
 export class OrderItems extends BaseEntity {
-  @Column("uuid", { primary: true, name: "OrderId", nullable: false })
+  @PrimaryColumn("uuid", { name: "OrderId", nullable: false })
   order_id: string;
-  @OneToOne(() => Order, { onDelete: "CASCADE" })
+  @ManyToOne(() => Order, (order)=> order.orderItems,{ onDelete: "CASCADE" })
   @JoinColumn({ name: "OrderId", referencedColumnName: "id" })
   order: Order;
 
-  // @Column({ name: "ProductId" })
+  // @Column("uuid", { name: "ProductId" })
   // product_id: string;
-  // @OneToMany(() => Product, (products) => products.orderItems)
+  // @ManyToOne(() => Product, (product) => product.orderItems)
   // @JoinColumn({ name: "ProductId" })
-  // products: Product[];
+  // product: Product;
 
-  @CreateDateColumn({
+  @CreateDateColumn({  primary: true,
     name: "DatePurchased",
     type: "timestamp with time zone",
   })

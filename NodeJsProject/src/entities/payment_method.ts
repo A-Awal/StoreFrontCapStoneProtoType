@@ -1,18 +1,23 @@
-import { Entity, JoinColumn, OneToOne, Column, BaseEntity } from "typeorm";
+import { Entity, JoinColumn, OneToOne, Column, BaseEntity, PrimaryColumn } from "typeorm";
 import { User } from "./user";
 import { Store } from "./store";
 
 @Entity("CreditCardDetails")
 export class CreditCard extends BaseEntity {
-  @Column("uuid", { primary: true, name: "CustomerId" })
+  @PrimaryColumn("uuid", {  name: "CustomerId" })
   customer_id: string;
-  @OneToOne(() => User,(user)=> user.creditCard,{
+  @OneToOne(() => User, (user) => user.creditCard, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "CustomerId", referencedColumnName: "id" })
   user: User;
 
-  @OneToOne(() => Store, (store) => store.creditCard, { nullable: false, onDelete: "CASCADE" })
+  @PrimaryColumn("uuid", {  name: "StoreId" })
+  store_id: string;
+  @OneToOne(() => Store, (store) => store.creditCard, {
+    nullable: false,
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "StoreId" })
   store: Store;
 

@@ -5,12 +5,12 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
-  OneToOne,
+  OneToMany,
   CreateDateColumn,
 } from "typeorm";
 import { OrderItems } from "./purchase";
 import { User } from "./user";
-// import { OrderItems } from "./purchase";
+
 
 @Entity("Orders")
 export class Order extends BaseEntity {
@@ -32,6 +32,6 @@ export class Order extends BaseEntity {
   @Column({ name: "OrderState" })
   order_state: number;
 
-  @OneToOne(() => OrderItems, (orderItems) => orderItems.order)
-  orderItems: OrderItems;
+  @OneToMany(() => OrderItems, (orderItems) => orderItems.order)
+  orderItems: OrderItems[];
 }

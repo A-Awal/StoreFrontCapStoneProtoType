@@ -12,42 +12,11 @@
     "http"
   ],
   "paths": {
-    "/api/logout": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/api/customer/login": {
       "post": {
         "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "return": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
+        "parameters": [],
+        "responses": {}
       }
     },
     "/api/customer/signup": {
@@ -85,31 +54,22 @@
         }
       }
     },
-    "/api/business/login": {
-      "post": {
+    "/api/customer/delete": {
+      "delete": {
         "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "return": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
           }
         }
+      }
+    },
+    "/api/business/login": {
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
       }
     },
     "/api/business/signup": {
@@ -220,108 +180,44 @@
         }
       }
     },
-    "/api/auth/google/login/success": {
-      "get": {
+    "/api/business/support": {
+      "post": {
         "description": "",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
           },
-          "403": {
-            "description": "Forbidden"
-          }
-        }
-      }
-    },
-    "/api/auth/google/login/failed": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/auth/google/": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
           "500": {
             "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/auth/google/redirect": {
-      "get": {
+    "/api/business/profile-update": {
+      "post": {
         "description": "",
         "parameters": [],
         "responses": {
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/auth/google/logout": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/auth/facebookcalback/login/success": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
-          "403": {
-            "description": "Forbidden"
-          }
-        }
-      }
-    },
-    "/api/auth/facebook/login/failed": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/auth/facebook/": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      }
-    },
-    "/api/auth/facebook/calback": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      }
-    },
-    "/api/auth/facebook/logout": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
           "500": {
             "description": "Internal Server Error"
           }

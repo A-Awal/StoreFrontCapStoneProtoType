@@ -2,12 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import passport from "passport";
 import { User } from "../../entities/user";
 import { generateAuthToken } from "../../utils/jwt";
+import { loginUser } from './../../types/user.types';
 
 export const loginHandler = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<Response<any, Record<string, any>>> => {
+): Promise<Response<any, {message: string, token: string, user:loginUser}>> => {
   return passport.authenticate(
     "local",
     { session: false },
@@ -26,7 +27,7 @@ export const loginHandler = async (
         },
         !!rememberme
       );
-      return res.status(200).send({
+       res.status(200).send({
         message: "Login successful",
         success: true,
         user: {

@@ -7,11 +7,12 @@ import { Token } from "./entities/token";
 import { OrderItems } from "./entities/purchase";
 import { CreditCard } from "./entities/payment_method";
 import { Shipping } from "./entities/shipping_details";
+import { Image } from "./entities/photo";
 
 const config: DataSourceOptions = {
   type: "postgres",
   host: process.env.DB_HOST,
-  port: Number(process.env.DATABASE_PORT),
+  port: +process.env.DATABASE_PORT,
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -24,8 +25,9 @@ const config: DataSourceOptions = {
     Order,
     CreditCard,
     Shipping,
+    Image
   ],
-  migrations: [__dirname + "/migrations/*{.ts,.js}"],
+  migrations: ["build/migrations/*{.ts,.js}"],
   synchronize: true,
   migrationsRun: false,
   logging: true,

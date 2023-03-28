@@ -8,7 +8,7 @@ export enum Category {
   Ecommerce = "e-Commerce",
 }
 
-interface order {
+export interface order {
   userId: string;
   storeId: string;
   products: Product[];

@@ -43,10 +43,7 @@ export class User extends Person {
   @OneToOne(() => CreditCard, (creditCard) => creditCard.user)
   creditCard: CreditCard;
 
-  @OneToOne(() => Shipping, (shipping) => shipping.user, {
-    nullable: true,
-    onDelete: "CASCADE",
-  })
+  @OneToOne(() => Shipping, (shipping) => shipping.user)
   shipping: Shipping
 
   public async generateAuthToken(): Promise<string> {
